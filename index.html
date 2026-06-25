@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Has Katherine Given Birth?</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --no: #e63946;
+      --yes: #2a9d8f;
+      --fg: #f1f1f1;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      text-align: center;
+      padding: 1.5rem;
+      transition: background 0.6s ease;
+    }
+    h1 {
+      font-weight: 600;
+      font-size: clamp(1.6rem, 5vw, 3rem);
+      margin: 0 0 1.5rem;
+      letter-spacing: -0.01em;
+    }
+    #answer {
+      font-weight: 800;
+      font-size: clamp(5rem, 28vw, 14rem);
+      line-height: 1;
+      margin: 0;
+      color: var(--no);
+      transition: color 0.6s ease, transform 0.4s ease;
+    }
+    body.yes { --bg: #07140f; }
+    body.yes #answer { color: var(--yes); }
+    #sub {
+      margin-top: 1.5rem;
+      font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+      opacity: 0.55;
+      min-height: 1.4em;
+    }
+    body.yes #sub::after { content: "🎉 Congratulations! 🎉"; }
+  </style>
+</head>
+<body>
+  <h1>Has Katherine Given Birth?</h1>
+  <p id="answer">…</p>
+  <p id="sub"></p>
+
+  <script>
+    // The answer lives in answer.txt (just the word "NO" or "YES").
+    // To flip it, edit that one file on GitHub — no need to touch this page.
+    async function loadAnswer() {
+      try {
+        // Cache-buster so updates show up immediately, not after GitHub's CDN cache expires.
+        const res = await fetch('answer.txt?t=' + Date.now(), { cache: 'no-store' });
+        const raw = (await res.text()).trim().toUpperCase();
+        const isYes = raw === 'YES';
+        document.getElementById('answer').textContent = isYes ? 'YES' : 'NO';
+        document.body.classList.toggle('yes', isYes);
+      } catch (e) {
+        document.getElementById('answer').textContent = 'NO';
+      }
+    }
+    loadAnswer();
+    // Auto-refresh every 30s so an open tab updates itself when the answer changes.
+    setInterval(loadAnswer, 30000);
+  </script>
+</body>
+</html>
