@@ -52,16 +52,48 @@
       min-height: 1.4em;
     }
     body.yes #sub::after { content: "🎉 Congratulations! 🎉"; }
+    #weight {
+      margin-top: 0.75rem;
+      font-size: clamp(1.1rem, 4vw, 2rem);
+      font-weight: 700;
+      color: var(--yes);
+      display: none;
+    }
+    #weight.show { display: block; }
   </style>
 </head>
 <body>
   <h1>Has Katherine Given Birth?</h1>
   <p id="answer">…</p>
+  <p id="weight"></p>
   <p id="sub"></p>
 
   <script>
     // The answer lives in answer.txt (just the word "NO" or "YES").
-    // To flip it, edit that one file on GitHub — no need to touch this page.
+    // The baby's weight lives in weight.txt (e.g. "7 lbs 4 oz").
+    // To update either, edit that one file on GitHub — no need to touch this page.
+
+    // Turn whatever is typed in weight.txt into a clean "X lbs Y oz" string.
+    // Accepts "7 lbs 4 oz", "7 4", "7lb 4oz", etc. Returns "" if no number found.
+    function formatWeight(text) {
+      const t = text.trim();
+      if (!t) return '';
+      const nums = t.match(/\d+/g);
+      if (!nums) return t;                       // no digits: just show what was typed
+      if (nums.length >= 2) return `${nums[0]} lbs ${nums[1]} oz`;
+      return `${nums[0]} lbs`;
+    }
+
+    async function loadWeight() {
+      try {
+        const res = await fetch('weight.txt?t=' + Date.now(), { cache: 'no-store' });
+        if (!res.ok) return '';
+        return formatWeight(await res.text());
+      } catch (e) {
+        return '';
+      }
+    }
+
     async function loadAnswer() {
       try {
         // Cache-buster so updates show up immediately, not after GitHub's CDN cache expires.
@@ -70,6 +102,16 @@
         const isYes = raw === 'YES';
         document.getElementById('answer').textContent = isYes ? 'YES' : 'NO';
         document.body.classList.toggle('yes', isYes);
+
+        // Weight is only shown once the answer is YES and a weight has been entered.
+        const weightEl = document.getElementById('weight');
+        const weight = isYes ? await loadWeight() : '';
+        if (weight) {
+          weightEl.textContent = '👶 ' + weight;
+          weightEl.classList.add('show');
+        } else {
+          weightEl.classList.remove('show');
+        }
       } catch (e) {
         document.getElementById('answer').textContent = 'NO';
       }
