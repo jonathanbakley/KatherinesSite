@@ -103,6 +103,11 @@
         document.getElementById('answer').textContent = isYes ? 'YES' : 'NO';
         document.body.classList.toggle('yes', isYes);
 
+        // While the answer is NO, show a heads-up line. On YES it's cleared so the
+        // "🎉 Congratulations! 🎉" message (added via CSS) shows instead.
+        document.getElementById('sub').textContent =
+          isYes ? '' : 'Expect an update in the next 1-2 days…';
+
         // Weight is only shown once the answer is YES and a weight has been entered.
         const weightEl = document.getElementById('weight');
         const weight = isYes ? await loadWeight() : '';
